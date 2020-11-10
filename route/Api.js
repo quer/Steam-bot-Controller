@@ -39,6 +39,16 @@ router.post('/RemoveBot', function (req, res) {
     Bots.RemoveBot(loginName);
     res.json({status: true});
 })
+router.post('/StartBot', function (req, res) {
+    var loginName = req.param('loginName');
+    var started = Bots.StartBot(loginName);
+    res.json({status: started});
+});
+router.post('/StopBot', function (req, res) {
+    var loginName = req.param('loginName');
+    Bots.StopBot(loginName);
+    res.json({status: true});
+});
 router.post('/EditBot', function (req, res) {
     var loginName = req.param('loginName');
     var startWhenSystemStartRestart = req.param('startWhenSystemStartRestart') == "true" ? true : false;

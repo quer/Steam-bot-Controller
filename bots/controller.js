@@ -77,6 +77,25 @@ class BotController {
             Storage.Bots.RemoveBot(loginName);
         }
     }
+    async StartBot(loginName){
+        var bot = this.FindBot(loginName);
+        if(bot != null)
+        {
+            try {
+                await bot.startBot();
+                return true;
+            } catch (error) {
+                return false;
+            }
+        }
+    }
+    StopBot(loginName) {
+        var bot = this.FindBot(loginName);
+        if(bot != null)
+        {
+            bot.stopBot();
+        }
+    }
     editBot(loginName, tartWhenSystemStartRestart, restartOnConnectionFail){
         var bot = this.FindBot(loginName);
         if(bot != null)

@@ -4,6 +4,7 @@ const SteamTotp = require('steam-totp');
 const SteamWebLogOn = require('steam-weblogon');
 const request = require('../request');
 const Storage = require('../storage/controller')
+var cheerio = require('cheerio');
 class Bot {
     constructor(botData) {
         
@@ -62,6 +63,7 @@ class Bot {
                 await this.SetWebSession();
             }else{
                 console.log("bot not online");
+                this.online = false;
             }
 
             if(this.callbackWhitResult != null){
@@ -73,7 +75,8 @@ class Bot {
 
         this.steamClient.on('loggedOff', function onSteamLogOff(eresult) {
             console.log("Logged off from Steam.");
-        });
+            this.online = false;
+        }.bind(this));
         this.loops = 0;
         this.steamClient.on('error', function onSteamError(error) {
             console.log("Connection closed by server - ", error);
@@ -99,14 +102,18 @@ class Bot {
     
     startBot(){
         return new Promise(function (resolve, reject) {
-            this.callbackWhitResult = resolve;
-            this.callbackWhitErrorResult = reject;
-            this.steamClient.connect();
-        
+            if(!this.online){
+                this.callbackWhitResult = resolve;
+                this.callbackWhitErrorResult = reject;
+                this.steamClient.connect();    
+            }else{
+                resolve();
+            }
         }.bind(this));
     }
     stopBot(){
         this.steamClient.disconnect();
+        this.online = false;
     }
     updateBotData(data){
         this.botData = data;
@@ -132,23 +139,65 @@ class Bot {
                 this.requestCommunity.get({uri: "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key="+ config.SteamApiKey +"&steamids=" + this.steamid }, function(error, response, body) {
                     if(error){
                         reject(error);
+                    }else{
+                        var jsonData = JSON.parse(body)
+                        console.log(jsonData);
+                        var accountData = {};
+                        if(jsonData && jsonData.response && jsonData.response.players && jsonData.response.players[0])
+                        {
+                            accountData = jsonData.response.players[0];
+                        }
+                        resolve(accountData);
                     }
-                    var jsonData = JSON.parse(body)
-                    console.log(jsonData);
-                    var accountData = {};
-                    if(jsonData && jsonData.response && jsonData.response.players && jsonData.response.players[0])
-                    {
-                        accountData = jsonData.response.players[0];
-                    }
-                    resolve(accountData);
                 }.bind(this))
             }
         }.bind(this));
+    }
+    GetOrSetAccountApiKey(){
+        return new Promise(function (resolve, reject) {
+            if(!this.botData.apikey){
+                if(this.requestCommunity != null){
+                    this.requestCommunity.get({uri: "https://steamcommunity.com/dev/apikey" }, function(error, response, body) {
+                        if(error){
+                            console.log("get steam api key, error: ", error)
+                            reject();
+                            return;
+                        }
+                        var $ = cheerio.load(body);
+                        // acount do not have a key
+                        if($("#domain").length > 0){
+                            this.requestCommunity.post({
+                                url: "https://steamcommunity.com/dev/registerkey",
+                                form:{
+                                    domain: this.loginName,
+                                    agreeToTerms: 1,
+                                    sessionid: this.sessionID
+                                }
+                            }, function(error, response, body){
+                                var recurveCall = this.GetOrSetAccountApiKey();
+                                recurveCall.then(function (key) {
+                                    resolve(key);
+                                })
+                            })
+                        }else{
+                            var fieldText = $("#bodyContents_ex").find("p").first().text();
+                            var key = fieldText.replace("Key: ", "");
+                            resolve(key)
+                        }
+                    });
+                }
+            }
+            else 
+            {
+                resolve(this.botData.apikey)
+            }
+        });
     }
     GetForClient(){
         return {...this.botData.accountInfo,
             startOnConnectionFail: this.botData.startOnConnectionFail,
             startSystemStart: this.botData.startSystemStart,
+            online: this.online,
             personastate: {
                 id: this.botData.personastate,
                 name: Object.keys(Steam.EPersonaState).find(key => Steam.EPersonaState[key] === this.botData.personastate),
