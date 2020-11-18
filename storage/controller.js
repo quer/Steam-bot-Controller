@@ -58,11 +58,23 @@ module.exports = {
                 .write();
             }
         },
-        SetAccount: function (loginName, data) {
+        // {accountInfo: xxxx, games: xxxx, apiKey: xxxx}
+        SetAccountDetails: function (loginName, data) {
             if(data != null){
+                var storedData = this.GetBot(loginName)
+                if(data.accountInfo){
+                    storedData.accountInfo = data.accountInfo;
+                }
+                if(data.games){
+                    storedData.games = data.games;
+                }
+                if(data.apiKey){
+                    storedData.apiKey = data.apiKey;
+                }
+                //save chances
                 db.get('steamBots')
                 .find({ loginName: loginName })
-                .assign({ accountInfo: data})
+                .assign(storedData)
                 .write()
             }
         },
@@ -92,6 +104,28 @@ module.exports = {
         },
         GetServer: function () {
             return db.get('steamServer').value();
+        }
+    },
+    IdleBots: {
+        GetBot: function (loginName) {
+            if(db.get('steamBots').find({loginName: loginName}).has('idleList').value()){
+                return db.get('steamBots').find({loginName: loginName})
+                    .value().idleList;
+            }
+            return [];
+        },
+        SetBot: function (loginName, List) {
+            db.get('steamBots')
+            .find({ loginName: loginName })
+            .assign({idleList: List})
+            .write()
+        },
+        GetBotGames: function (loginName) {
+            if(db.get('steamBots').find({loginName: loginName}).has('games').value()){
+                return db.get('steamBots').find({loginName: loginName})
+                    .value().games;
+            }
+            return [];
         }
     }
 }

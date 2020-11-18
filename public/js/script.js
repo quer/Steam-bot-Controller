@@ -1,4 +1,5 @@
 // use #! to hash
+var activePageName = null;
 router = new Navigo(null, true, '#!');
 router.on({
     // 'view' is the id of the div element inside which we render the HTML
@@ -9,7 +10,7 @@ router.on({
     },
     'Idle': () => { 
         ChanceMenu("Idle");
-        $("#view").html("Idle"); 
+        LoadIdlePage();
         console.log("Idle");
     },
     'Chat': () => { 
@@ -32,6 +33,18 @@ router.on({
         }).done(function( data ) {
 
         })
+        $.ajax({
+            method: "GET",
+            url: "Api/GetBotIdleGameList",
+            dataType: "json",
+            traditional: true,
+            data: { 
+                loginName: "botclient0"
+            }
+        })
+        .done(function( data ) {
+            callback(true);
+        });
     }
 });
 
@@ -44,6 +57,7 @@ router.notFound((query) => { $('#view').html('<h3>Couldn\'t find the page you\'r
 router.resolve();
 
 function ChanceMenu(newMenu) {
+    activePageName = newMenu;
     var menuItems = $("#menuItems li a");
     for (let i = 0; i < menuItems.length; i++) {
         const menuItem = menuItems[i];

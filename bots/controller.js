@@ -54,13 +54,21 @@ class BotController {
             var bot = this.FindBot(loginName);
             if(bot != null){
                 var info = null;
+                var accountApiKey = null;
+                var games = null;
                 try {
-                    info = await bot.GetAccountInfo();
+                    accountApiKey = await bot.GetAccountApiKey();
+                    info = await bot.GetAccountInfo(accountApiKey);
+                    games = await bot.GetGamesOwned(accountApiKey)
                 } catch (error) {
                     reject(error);
                 }
-                Storage.Bots.SetAccount(loginName, info);
-                bot.accountinfo = info;
+                Storage.Bots.SetAccountDetails(loginName, {
+                    accountInfo: info,
+                    games: games,
+                    apiKey: accountApiKey
+                });
+                bot.RefreshData();
                 resolve();
             }else{
                 reject("Account do not exist");
@@ -136,6 +144,68 @@ class BotController {
             bot.updateBotData(botData);
             bot.SetPersonaState();
         }
+    }
+    // idle part
+    AddIdleBot(loginName, theList){
+        //list format : [{ game_id: "730" }]
+        var list = [];
+        for (let i = 0; i < theList.length; i++) {
+            const appInList = theList[i];
+            list.push({ game_id: appInList });
+        }
+
+        Storage.IdleBots.SetBot(loginName, list);
+        var bot = this.FindBot(loginName);
+        if(bot != null){
+            bot.StartIdleGames(list);
+        }
+    }
+    StopIdleBot(loginName){
+        var theEmptyIdleList = [];
+        Storage.IdleBots.SetBot(loginName, theEmptyIdleList);
+        var bot = this.FindBot(loginName);
+        if(bot != null){
+            bot.StartIdleGames(theEmptyIdleList);
+        }
+    }
+    IdleListToClient(){
+        var list = [];
+        for (let i = 0; i < this.clients.length; i++) {
+            const bot = this.clients[i];
+            var botClient = bot.GetForClient();
+
+
+            botClient.idleList = this.GetIdleGamesForBot(bot.loginName);
+            list.push(botClient);
+        }
+        return list;
+    }
+    GetIdleGamesForBot(loginName){
+        var returnList = [];
+        var activeList = Storage.IdleBots.GetBot(loginName);
+        if(activeList != null){
+            var botGames = Storage.IdleBots.GetBotGames(loginName);
+            for (let i = 0; i < activeList.length; i++) {
+                const idleApp = activeList[i];
+                for (let ii = 0; ii < botGames.length; ii++) {
+                    const botGame = botGames[ii];
+                    if(botGame.appid == idleApp.game_id){
+                        returnList.push({appid: idleApp.game_id, name: botGame.name, playtime: botGame.playtime_forever});
+                        break;
+                    }
+                }
+            }
+        }
+        return returnList;
+    }
+    GetBotIdleGameList(loginName){
+        var returnList = [];
+        var botGames = Storage.IdleBots.GetBotGames(loginName);
+        for (let i = 0; i < botGames.length; i++) {
+            const game = botGames[i];
+            returnList.push({appid: game.appid, name: game.name});
+        }
+        return returnList;
     }
 }
 var Bots = new BotController();

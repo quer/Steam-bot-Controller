@@ -19,6 +19,8 @@ class Bot {
 
         this.botData = botData;
         this.accountinfo = this.botData.accountInfo ?? null;
+        this.apiKey = this.botData.apiKey ?? null;
+        this.games = this.botData.games ?? null;
         this.profileurl = null;
         this.avatar = null;
         this.personaname = null;
@@ -61,6 +63,7 @@ class Bot {
                 this.online = true;
                 this.steamid = this.steamClient.steamID;
                 await this.SetWebSession();
+                this.StartIdleFromStorage();
             }else{
                 console.log("bot not online");
                 this.online = false;
@@ -77,6 +80,7 @@ class Bot {
             console.log("Logged off from Steam.");
             this.online = false;
         }.bind(this));
+        
         this.loops = 0;
         this.steamClient.on('error', function onSteamError(error) {
             console.log("Connection closed by server - ", error);
@@ -133,65 +137,100 @@ class Bot {
             }.bind(this));
         }.bind(this));
     }
-    GetAccountInfo(){
-        return new Promise(function (resolve, reject) {
+    GetAccountInfo(accountApiKey){
+        return new Promise(async function (resolve, reject) {
             if(this.requestCommunity != null){
-                this.requestCommunity.get({uri: "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key="+ config.SteamApiKey +"&steamids=" + this.steamid }, function(error, response, body) {
-                    if(error){
-                        reject(error);
+                try {
+                    if(accountApiKey != null){
+                        this.requestCommunity.get({uri: "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key="+ accountApiKey +"&steamids=" + this.steamid }, function(error, response, body) {
+                            if(error){
+                                reject(error);
+                            }else{
+                                var jsonData = JSON.parse(body)
+                                console.log(jsonData);
+                                var accountData = {};
+                                if(jsonData && jsonData.response && jsonData.response.players && jsonData.response.players[0])
+                                {
+                                    accountData = jsonData.response.players[0];
+                                }
+                                resolve(accountData);
+                            }
+                        }.bind(this))
                     }else{
-                        var jsonData = JSON.parse(body)
-                        console.log(jsonData);
-                        var accountData = {};
-                        if(jsonData && jsonData.response && jsonData.response.players && jsonData.response.players[0])
-                        {
-                            accountData = jsonData.response.players[0];
-                        }
-                        resolve(accountData);
+                        reject("ApiKey error: did not get one");
                     }
-                }.bind(this))
+                } catch (apiKeyError) {
+                    reject("ApiKey error:" + apiKeyError);
+                    
+                }
+            }else{
+                reject("web session not set");
             }
         }.bind(this));
     }
-    GetOrSetAccountApiKey(){
+    GetAccountApiKey(){
         return new Promise(function (resolve, reject) {
-            if(!this.botData.apikey){
-                if(this.requestCommunity != null){
-                    this.requestCommunity.get({uri: "https://steamcommunity.com/dev/apikey" }, function(error, response, body) {
-                        if(error){
-                            console.log("get steam api key, error: ", error)
-                            reject();
+            if(this.requestCommunity != null){
+                this.requestCommunity.get({uri: "https://steamcommunity.com/dev/apikey" }, function(error, response, body) {
+                    if(error){
+                        console.log("get steam api key, error: ", error)
+                        reject();
+                        return;
+                    }
+                    var $ = cheerio.load(body);
+                    if ($('#mainContents h2').text() === 'Access Denied') {
+                        reject('Access Denied, the account is limited account, read more herer https://support.steampowered.com/kb_article.php?ref=3330-IAGK-7663');
+                        return
+                    }
+
+                    if ($('#bodyContents_ex h2').text() === 'Your Steam Web API Key') {
+                        var key = $('#bodyContents_ex p')
+                            .eq(0)
+                            .text()
+                            .split(' ')[1];
+                        resolve(key);
+                        return
+                    }
+
+
+                    // acount do not have a key
+                    this.requestCommunity.post({
+                        url: "https://steamcommunity.com/dev/registerkey",
+                        form:{
+                            domain: this.loginName,
+                            agreeToTerms: 'agreed',
+                            sessionid: this.sessionID,
+                            submit: 'Register'
+                        }
+                    }, function(error, response, body){
+                        var recurveCall = this.GetOrSetAccountApiKey();
+                        recurveCall.then(resolve);
+                    }.bind(this))
+                    
+                }.bind(this));
+            }
+        }.bind(this));
+    }
+    GetGamesOwned(apiKey){
+        return new Promise(function (resolve, reject) {
+            if(this.requestCommunity != null){
+                this.requestCommunity.get({uri: "https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key="+ apiKey +"&steamid=" + this.steamid + "&include_appinfo=true" }, function(error, response, body) {
+                    if(error){
+                        reject("error fetch games "+ error);
+                        return;
+                    }else{
+                        try {
+                            var jsonData = JSON.parse(body);
+                            resolve(jsonData.response.games);
+                            return;
+                        } catch (error) {
+                            reject("fetch games", error);
                             return;
                         }
-                        var $ = cheerio.load(body);
-                        // acount do not have a key
-                        if($("#domain").length > 0){
-                            this.requestCommunity.post({
-                                url: "https://steamcommunity.com/dev/registerkey",
-                                form:{
-                                    domain: this.loginName,
-                                    agreeToTerms: 1,
-                                    sessionid: this.sessionID
-                                }
-                            }, function(error, response, body){
-                                var recurveCall = this.GetOrSetAccountApiKey();
-                                recurveCall.then(function (key) {
-                                    resolve(key);
-                                })
-                            })
-                        }else{
-                            var fieldText = $("#bodyContents_ex").find("p").first().text();
-                            var key = fieldText.replace("Key: ", "");
-                            resolve(key)
-                        }
-                    });
-                }
+                    }
+                });
             }
-            else 
-            {
-                resolve(this.botData.apikey)
-            }
-        });
+        }.bind(this));
     }
     GetForClient(){
         return {...this.botData.accountInfo,
@@ -208,6 +247,24 @@ class Bot {
     }
     SetPersonaState(){
         this.steamFriends.setPersonaState(this.botData.personastate);
+    }
+    StartIdleGames(idleList){
+        
+        this.steamUser.gamesPlayed(idleList);
+    }
+    RefreshData(){
+        var botdata = Storage.Bots.GetBot(this.loginName);
+        this.botData = botdata;
+        this.accountinfo = this.botData.accountInfo ?? null;
+        this.apiKey = this.botData.apiKey ?? null;
+        this.games = this.botData.games ?? null;
+    }
+    StartIdleFromStorage(){
+        var idleList = Storage.IdleBots.GetBot(this.loginName);
+        if(idleList != null )
+        {
+            this.StartIdleGames(idleList);
+        }
     }
 }
 module.exports = Bot;

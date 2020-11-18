@@ -20,22 +20,26 @@ function LoadBotPage() {
         </div>
     </div>`);
     LoadBotData();
-    updateSteamBotInterval = setInterval(LoadBotData, 60000);
+    updateSteamBotInterval = setInterval(function () {
+        if(activePageName == "Bots"){
+            LoadBotData();
+        }
+    } , 60000);
     $("#AddSteamBot").click(function () {
       
         var dialog = modal_box({
             title: "Add Steam Account",
             description: `<div class="form-group">
                     <label for="SteamUserName">Steam UserName</label>
-                    <input type="text" class="form-control" id="SteamUserName" required>
+                    <input type="text" class="form-control" id="SteamUserName" value="" required>
                 </div>
                 <div class="form-group">
                     <label for="SteamPassword">Steam Password</label>
-                    <input type="password" class="form-control" id="SteamPassword" required>
+                    <input type="password" class="form-control" id="SteamPassword" value="" required>
                 </div>
                 <div class="form-group">
                     <label for="SteamSharedSecret">Steam Shared Secret</label>
-                    <input type="password" class="form-control" id="SteamSharedSecret" required>
+                    <input type="password" class="form-control" value="" id="SteamSharedSecret" required>
                 </div>
                 <div class="custom-control custom-switch">
                     <input type="checkbox" class="custom-control-input" id="StartWhenSystemStartRestart">
@@ -175,7 +179,7 @@ function LoadBotData() {
 
                                 </h5>
                                 <p class="card-text">Not running any games</p>
-                                <p>${bot.personastate.name}</p>
+                                <p>${bot.online ? bot.personastate.name : 'Offline'}</p>
                             </div>
                             <div class="card-footer text-muted">
                             ${formatted_date}
