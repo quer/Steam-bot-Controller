@@ -4,6 +4,7 @@ module.exports = {
     SteamApiKey: ""
 }
 
+/*
 if(module.exports.sessionSecret == "SteamWebSession")
 {
     throw "Chance web session code for more secure using";
@@ -11,4 +12,4 @@ if(module.exports.sessionSecret == "SteamWebSession")
 if(module.exports.SteamApiKey == "")
 {
     throw "add a steam api key.";
-}
+}*/

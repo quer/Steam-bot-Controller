@@ -23,7 +23,7 @@ function LoadIdlePageData() {
         </div>`);
         isLoading = true;
         $.ajax({
-            url: "/Api/GetIdleBots"
+            url: "/Api/Idle"
         }).done(function( data ) {
             isLoading = false;
             if(data.status){
@@ -106,7 +106,7 @@ $("body").on("click", ".StopIdleBot", function (e) {
             doneRulesCallback:  function (callback) {
                 $.ajax({
                     method: "POST",
-                    url: "Api/IdleStop",
+                    url: "Api/Idle/IdleStop",
                     data: { 
                         loginName: steamLogin
                     }
@@ -124,7 +124,7 @@ $("body").on("click", ".StartIdleBot", function (e) {
     var steamLogin = $(this).parent().parent().parent().attr("loginName")
     $.ajax({
         method: "GET",
-        url: "Api/GetBotIdleGameList",
+        url: "Api/Idle/GetBotIdleGameList",
         dataType: "json",
         traditional: true,
         data: { 
@@ -181,7 +181,7 @@ $("body").on("click", ".StartIdleBot", function (e) {
                 if(valid){
                     $.ajax({
                         method: "POST",
-                        url: "Api/IdleGames",
+                        url: "Api/Idle/IdleGames",
                         dataType: "json",
                         traditional: true,
                         data: { 

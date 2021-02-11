@@ -3,6 +3,7 @@ var express = require('express')
 var router = express.Router();
 var Bots = require('../bots/controller')
 
+router.use('/Module', require('./Api/Module'))
 router.get('/', function (req, res) {
     res.json({status: false});
 })
