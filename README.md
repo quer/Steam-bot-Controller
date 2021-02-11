@@ -18,9 +18,10 @@ and then ´node main´
  * set new idle
  * stop idle
  * see list of idling games
+ * hide all behind a login.
+ * only access if you have login, via the pass set in config file. 
 
 # to do
- * add login to panel
  * chat system
  * friends request
  * run scripts modules.

@@ -20,31 +20,12 @@ router.on({
     },
     'Modules': () => { 
         ChanceMenu("Modules");
-        $("#view").html("Modules"); 
+        LoadModulesPage();
         console.log("Modules");
     },
     'debugCall': () => { 
-        ChanceMenu("debugCall");
-        $("#view").html("debugCall"); 
-        console.log("debugCall");
+        //ChanceMenu("debugCall");
         
-        $.ajax({
-            url: "/Api/debugCall"
-        }).done(function( data ) {
-
-        })
-        $.ajax({
-            method: "GET",
-            url: "Api/GetBotIdleGameList",
-            dataType: "json",
-            traditional: true,
-            data: { 
-                loginName: "botclient0"
-            }
-        })
-        .done(function( data ) {
-            callback(true);
-        });
     }
 });
 
