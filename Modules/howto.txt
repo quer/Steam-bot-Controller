@@ -1,0 +1,6 @@
+return a object whit: 
+mode -> moduleHelper.mode
+fields -> list of field, that user can interact whit. 
+fields -> list -> key is what to bind to. Field must have a "type" -> moduleHelper.field.type
+beforeShowUserField() -> a promist, that return the object that the user will set the values in. the keys of the obj, is what the gui bind to
+execute() -> what will happen when user activate

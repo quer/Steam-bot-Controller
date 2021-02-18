@@ -60,6 +60,7 @@ class Bot {
                 //the bot is online! 
                 console.log("bot online");
                 this.loops = 0;
+                this.forceRertyToLogin = false;
                 this.online = true;
                 this.steamid = this.steamClient.steamID;
                 await this.SetWebSession();
@@ -82,11 +83,12 @@ class Bot {
         }.bind(this));
         
         this.loops = 0;
+        this.forceRertyToLogin = false;
         this.steamClient.on('error', function onSteamError(error) {
             console.log("Connection closed by server - ", error);
             var botData = Storage.Bots.GetBot(this.loginName);
             this.online = false;
-            if(botData && botData.startOnConnectionFail){
+            if((botData && botData.startOnConnectionFail) || this.forceRertyToLogin){
                 if(this.loops < 3){
                     setTimeout(function () {
                         ++this.loops;
@@ -94,11 +96,17 @@ class Bot {
                     }.bind(this), 3000);
                 }else{
                     this.loops = 0;
+                    this.forceRertyToLogin = false;
                     console.log("Have retryed 3 time to reconnect, will stop");
                     if(this.callbackWhitErrorResult != null){
                         this.callbackWhitErrorResult(error);
                         this.callbackWhitErrorResult = null;
                     }
+                }
+            }else{
+                if(this.callbackWhitErrorResult != null){
+                    this.callbackWhitErrorResult(error);
+                    this.callbackWhitErrorResult = null;
                 }
             }
         }.bind(this));
@@ -264,6 +272,75 @@ class Bot {
         if(idleList != null )
         {
             this.StartIdleGames(idleList);
+        }
+    }
+
+    /** module part */
+    GetModuleOptionsObj(){
+        return {
+            UserName: this.loginName,
+            steamUser: this.steamUser,
+            steamFriends: this.steamFriends,
+            accountPretty: this.steamClient.steamID + " - " + this.loginName + ":"
+        };
+    }
+    async RunAsPreModule(ModuleCallBack){
+        try {
+            var didStartBot = false;
+            //we need to besure to start the bot, to get the session and cookies for the requests.
+            if(!this.online){
+                didStartBot = true;
+                this.forceRertyToLogin = true;
+                var didStart = await this.startBot(); // will create session and cookies, when it conneded
+                console.log(didStart);
+            }else{
+                await this.SetWebSession(); // ensure the web session has not expired
+            }
+            //if the bot is not online, here, then somefing have gone wrong. then abande premodule
+            if(!this.online)
+            {
+                return null;
+            }
+            var preObject = await ModuleCallBack(this.steamClient, this.requestCommunity, this.requestStore, this.sessionID, this.GetModuleOptionsObj())
+           return preObject; 
+        } catch (error) {
+            console.error("RunAsPreModule", error);
+            return null;
+        }
+        finally {
+            if(didStartBot){
+                this.stopBot();
+            }
+        }
+    }
+    async RunModule(ModuleCallBack, objToModule){
+        try {
+            objToModule = objToModule || {};
+            var didStartBot = false;
+            //we need to besure to start the bot, to get the session and cookies for the requests.
+            if(!this.online){
+                didStartBot = true;
+                this.forceRertyToLogin = true;
+                var didStart = await this.startBot(); // will create session and cookies, when it conneded
+                console.log(didStart);
+            }else{
+                await this.SetWebSession(); // ensure the web session has not expired
+            }
+            //if the bot is not online, here, then somefing have gone wrong. then abande premodule
+            if(!this.online)
+            {
+                return null;
+            }
+            await ModuleCallBack(objToModule, this.steamClient, this.requestCommunity, this.requestStore, this.sessionID, this.GetModuleOptionsObj())
+            return true; 
+        } catch (error) {
+            console.error(this.loginName + " RunModule", error);
+            return false;
+        }
+        finally {
+            if(didStartBot){
+                this.stopBot();
+            }
         }
     }
 }

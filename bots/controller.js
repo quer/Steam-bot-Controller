@@ -124,6 +124,23 @@ class BotController {
         }
         return null;
     }
+    /**
+     * return null if one of the account do not exits 
+     */
+    FindBots(loginNames){
+        var foundBots = [];
+        for (let i = 0; i < loginNames.length; i++) {
+            const loginName = loginNames[i];
+            var bot = this.FindBot(loginName);
+            if(bot != null){
+                foundBots.push(bot);
+            }else{
+                return null;
+            }
+              
+        }
+        return foundBots;
+    }
     FindBotIndex(loginName){
         for (let index = 0; index < this.clients.length; index++) {
             const bot = this.clients[index];

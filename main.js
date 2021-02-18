@@ -57,6 +57,7 @@ app.get('/logout', function (req, res) {
 app.use('/api', routeApi)
 
 app.use(express.static('./public'));
+app.use('/moduleHelper.js', express.static(__dirname, {index: 'Modules/moduleHelper.js'}));
 
 app.listen(config.webPort, () => console.log(`Example app listening at http://localhost:${config.webPort}`))
 

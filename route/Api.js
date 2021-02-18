@@ -7,7 +7,7 @@ router.use(function (req, res, next) {
     if (req.session.login) {
         next();
     } else {
-        res.json({status: true, message: "not login"});
+        res.json({status: false, message: "not login"});
     }
 })
 
