@@ -26,6 +26,8 @@ class Module {
                             this.name = this.packageData.name;
                             this.version = this.packageData.version;
                             this.description = this.packageData.description;
+                            this.WillPlaygame = this.packageData.WillPlaygame || false; // if the module will starte playing a game
+                            this.repoId = this.packageData.repoId || null; // if the module is from the office module list, the we bind them whit the repoId
 
                             this.module = require(this.mainFilePath);
                             if(

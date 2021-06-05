@@ -29,15 +29,23 @@ function LoadModulesPageData() {
         }).done(function( data ) {
             isLoading = false;
             if(data.status){
-                var ModuleListHtml = `<div class="btn-group-vertical">`;
+                var ModuleListHtml = ``;
                 for (let i = 0; i < data.modules.length; i++) {
                     const module = data.modules[i];
                     if(module.valid){
-                        ModuleListHtml += `<button type="button" moduleId="${module.id}" moduleDescription="${module.description}" moduleMode="${module.mode}" class="btn btn-primary moduleListItem">${module.name}</button>`;
+                        ModuleListHtml += `
+                        <a href="#" class="list-group-item list-group-item-action moduleListItem" aria-current="true" moduleId="${module.id}" moduleDescription="${module.description}" moduleMode="${module.mode}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">${module.name}</h5>
+                                <div><small>3 days ago</small></div>
+                            </div>
+                            <p class="mb-1">${module.description}</p>
+                        </a>`;
                     }
                 }
-                ModuleListHtml += "</div>";
-                $("#ModulesList").html(ModuleListHtml);
+                var ModuleHtml = `<h1>Installed Moduels</h1><div class="list-group">${ModuleListHtml}</div>`;
+
+                $("#ModulesList").html(ModuleHtml);
                 isLoading = false;
             }else{
                 $("#ModulesList").html("Error getting Module list");
@@ -46,6 +54,7 @@ function LoadModulesPageData() {
     }
 }
 $("body").on("click", ".moduleListItem", function (e) {
+    e.preventDefault();
     var buttonObj = $(this);
     var moduleId = buttonObj.attr("moduleId");
     var moduleDescription = buttonObj.attr("moduleDescription");

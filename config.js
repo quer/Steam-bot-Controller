@@ -2,9 +2,12 @@ module.exports = {
     sessionSecret: "SteamWebSession", // will sone have a login
     webSitePassword: "test",
     webPort: 3000,
-    SteamApiKey: ""
+    SteamApiKey: "",
+    module: {
+        AutoUpdate: true,
+        Interval: 1440 //in minutes ( 1440 is one day)
+    }
 }
-
 /*
 if(module.exports.sessionSecret == "SteamWebSession")
 {

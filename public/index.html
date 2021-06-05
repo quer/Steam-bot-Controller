@@ -8,6 +8,8 @@
 
         <link href="css/bootstrap.css" rel="stylesheet">
         <link href="css/style.css" rel="stylesheet">
+        
+	    <script src="/socket.io/socket.io.js"></script>
     </head>
     <body>
         <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
@@ -62,12 +64,19 @@
                 </main>
             </div>
         </div>
-        <script type="application/javascript">
-            module = {}; 
-        </script>
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script type="application/javascript">
+            module = {};
+            const socket = io();
+            socket.on("error", () => {
+                $("body").htmL("Error connection to the socket.")
+            });
+        </script>
         <script src="js/src/bootstrap.bundle.js"></script>
         <script src="moduleHelper.js"></script>
+        <script type="application/javascript">
+            
+        </script>
         <script src="js/modals.js"></script>
         
         <script src="//unpkg.com/navigo@6"></script>
