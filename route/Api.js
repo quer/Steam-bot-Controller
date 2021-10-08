@@ -13,6 +13,7 @@ router.use(function (req, res, next) {
 
 router.use('/Idle', require('./Api/Idle'))
 router.use('/Module', require('./Api/Module'))
+router.use('/Nodes', require('./Api/Nodes'))
 
 router.get('/', function (req, res) {
     res.json({status: false});

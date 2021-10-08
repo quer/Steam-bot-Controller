@@ -4,24 +4,34 @@ router = new Navigo(null, true, '#!');
 router.on({
     // 'view' is the id of the div element inside which we render the HTML
     'Bots': () => { 
+        beforeChacePage();
         ChanceMenu("Bots");
         LoadBotPage();
         console.log("Bots");
     },
     'Idle': () => { 
+        beforeChacePage();
         ChanceMenu("Idle");
         LoadIdlePage();
         console.log("Idle");
     },
     'Chat': () => { 
+        beforeChacePage();
         ChanceMenu("Chat");
         $("#view").html("Chat"); 
         console.log("Chat");
     },
     'Modules': () => { 
+        beforeChacePage();
         ChanceMenu("Modules");
         LoadModulesPage();
         console.log("Modules");
+    },
+    'Nodes': () => { 
+        beforeChacePage();
+        ChanceMenu("Nodes");
+        LoadNodesPage();
+        console.log("Nodes");
     },
     'debugCall': () => { 
         //ChanceMenu("debugCall");
@@ -36,7 +46,13 @@ router.on(() => { $('#view').html('<h2>Here by default</h2>'); });
 router.notFound((query) => { $('#view').html('<h3>Couldn\'t find the page you\'re looking for...</h3>'); });
 
 router.resolve();
-
+function beforeChacePage() {
+    for (var i = connections.length - 1; i >= 0; i--) {
+        const connection = connections[i];
+        connection.remove();
+        connections.splice(i, 1);
+    }
+}
 function ChanceMenu(newMenu) {
     activePageName = newMenu;
     var menuItems = $("#menuItems li a");

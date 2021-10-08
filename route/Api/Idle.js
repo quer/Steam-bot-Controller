@@ -17,7 +17,7 @@ router.post('/IdleGames', function (req, res) {
         Bots.AddIdleBot(loginName, Games);
         res.json({status: true});
     }else{
-        res.json({status: false, massage: "send loginName"});
+        res.json({status: false, message: "send loginName"});
     }
 });
 
@@ -27,7 +27,7 @@ router.post('/IdleStop', function (req, res) {
         Bots.StopIdleBot(loginName);
         res.json({status: true});
     }else{
-        res.json({status: false, massage: "send loginName"});
+        res.json({status: false, message: "send loginName"});
     }
 });
 
@@ -36,7 +36,7 @@ router.get('/GetBotIdleGameList', function (req, res) {
     if(loginName){
         res.json({status: true, games: Bots.GetBotIdleGameList(loginName)});
     }else{
-        res.json({status: false, massage: "send loginName"});
+        res.json({status: false, message: "send loginName"});
     }
 })
 

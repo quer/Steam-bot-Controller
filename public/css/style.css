@@ -95,3 +95,163 @@ body {
     box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
   }
   
+
+
+
+/*
+	Node module creating page
+*/
+  .NodeModule_wrapper {
+    width: 100%;
+    height: calc(100vh - 67px);
+    display: flex;
+}
+.NodeModule_col {
+    overflow: auto;
+    width: 300px;
+    height: 100%;
+    border-right: 1px solid var(--border-color);
+}
+#NodeModule_flow {
+    position: absolute;
+    width: calc(100vw - 751px);
+    height: 100%;
+    background-size: 25px 25px;
+    background-image: linear-gradient(to right, #f1f1f1 1px, transparent 1px), linear-gradient(to bottom, #f1f1f1 1px, transparent 1px);
+  	display: flex;
+    touch-action: none;
+    outline: 0;
+}
+#NodeModule_save {
+	position: absolute;
+	bottom: 50px;
+	right: 50px;
+}
+#NodeModule_clear {
+	position: absolute;
+	bottom: 50px;
+	right: 150px;
+}
+/*
+	drag and drop menu elemets
+*/
+.NodeModule_drag-drawflow {
+    line-height: 50px;
+    border-bottom: 1px solid #cacaca;
+    padding-left: 20px;
+    cursor: move;
+    user-select: none;
+}
+/*
+  drag design
+*/
+
+.NodeModule_delete {
+	position: absolute;
+	top: -10px;
+	right: -10px;
+    background: white;
+    height: 15px;
+    width: 15px;
+    border: 2px solid #cacaca;
+    cursor: pointer;
+    z-index: 1;
+    border-radius: 50%;
+}
+.NodeModule_mdiv {
+	height: 15px;
+	width: 2px;
+	margin-left: 7px;
+	background-color: red;
+	transform: rotate(45deg);
+	Z-index: 1;
+}
+  
+.NodeModule_md {
+	height: 15px;
+	width: 2px;
+	background-color: red;
+	transform: rotate(90deg);
+	Z-index: 2;
+}
+.NodeModule_flow_content_node {
+  width: 100%;
+  display: block;
+}
+.NodeModule_flow_content_node .NodeModule_title-box {
+    height: 50px;
+    line-height: 50px;
+    background: #f7f7f7;
+    padding-left: 10px;
+}
+.NodeModule_flow_content_node .NodeModule_box {
+    font-size: 14px;
+    color: #555555;
+    border-top: 1px solid #e9e9e9;
+    border-radius: 4px 4px 0px 0px;
+}
+.NodeModule_flow_content_node .NodeModule_box-normal {
+  	padding: 10px 20px 20px 20px;
+}
+.NodeModule_input_box, .NodeModule_output_box {
+    margin-bottom: 10px;
+    height: 15px;
+    margin-top: 10px;
+	position: relative;
+}
+  .NodeModule_input, .NodeModule_output {
+    position: absolute;
+    background: white;
+    height: 15px;
+    width: 15px;
+    border: 2px solid #cacaca;
+    top: 2px;
+    cursor: pointer;
+    z-index: 1;
+    border-radius: 50%;
+}
+.NodeModule_input{
+	left: -10px;
+}
+.NodeModule_output{
+	right: -10px;
+}
+.NodeModule_input_text, .NodeModule_output_text{
+	position: relative;
+	top: 0px;
+  padding-right: 25px;
+
+}
+.NodeModule_input_text{
+	left: 25px;
+}
+.NodeModule_output_text{
+	/*right: 25px;*/
+	text-align: right;
+}
+.NodeModule_output_box {
+	width: 100%;
+}
+
+.NodeModule_flowBox {
+	display: flex;
+	align-items: center;
+	position: absolute;
+	color: #000;
+	z-index: 2;
+	min-height: 40px;
+	border-radius: 4px;
+	background: #ffffff;
+	border: 1px solid #cacaca;
+	-webkit-box-shadow: 0 2px 15px 2px #cacaca;
+	box-shadow: 0 2px 15px 2px #cacaca;
+	padding: 0px;
+	width: 200px;
+}
+.NodeModule_alerts-border {
+  border: 2px #ff0000 solid;
+  
+  animation: blink 1s;
+  animation-iteration-count: 3;
+}
+@keyframes blink { 50% { border-color:#000 ; }  }
