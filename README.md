@@ -1,6 +1,12 @@
 # Web panel to control multi account at once.
 [![Steam Donate][steam-img]][steam-url]
 
+# Working a node module builder
+Im current working on a node module builder, where you build the action for the account. 
+
+Se it here:
+https://github.com/quer/Steam-bot-Controller/tree/node-build-module/nodeController
+
 # Setup
 Just run ´npm install´ in the root folder,
 set global chance in  ´config.js´ file.
@@ -31,18 +37,25 @@ and then ´node main´
 # Module
 
 A simple but powerfuld module system have been added.
+
 a short description of how it works.
+
 each module need to be placed in a folder in the "Modules" folder.
+
 Each folder is a module. 
+
 In the module folder, there must be a "package.json", whit the following properties
+```js
 {
   "name": "testmodule", // the make, it will show in the module page
   "version": "1.0.0", // the version of the module. at the moment it is not used, but shoud be at a later date
   "description": "", // a description of what it is
   "main": "main.js" // what file is the module ( where it will execute the module )
 }
+```
 Then in the main file, eks "main.js" 
 it must have the following
+```js
 var helper = require('../moduleHelper');
 module.exports = {
     Mode: helper.mode.sinkel, // this must be one of the enums in 'helper.mode' it defindes how it will be showen. if only for one account a the time or more.
@@ -50,22 +63,24 @@ module.exports = {
         // must be a promise, the action that will be runed for each account
     }
 }
+```
 but it can also have the following fields:
-    fields: { // if you what to show some user input fields in the web, then defined them here.
-        customURL: {// this is the name of the key in the object that BeforeShowUserField returns, where the value will be stored
-            type: helper.field.type.text, // what type the field is, text box or that
-            text: "Custom url", // the showen text next to the field
-            description: "Your profile will eks be available at......" // not mandatory, but if set, it will be showen under the field
-        },
-        ...
+```js
+fields: { // if you what to show some user input fields in the web, then defined them here.
+    customURL: {// this is the name of the key in the object that BeforeShowUserField returns, where the value will be stored
+        type: helper.field.type.text, // what type the field is, text box or that
+        text: "Custom url", // the showen text next to the field
+        description: "Your profile will eks be available at......" // not mandatory, but if set, it will be showen under the field
     },
-    BeforeShowUserField:  function(steamClient, RequestCommunity, RequestStore, SessionID, options){
-        // this is do somfing before you send field to web gui, and before Execute
-        // this must be a promise, and the promise must return a obj, whit the thing that each account shoud have in the Execute.
-        // the obj that this return, will be send to the web gui, and the field, will set the value to the keys, of this obj.
-        // then that obj will be passed in "Execute" as "objectToEdit"
-    }
-
+    ...
+},
+BeforeShowUserField:  function(steamClient, RequestCommunity, RequestStore, SessionID, options){
+    // this is do somfing before you send field to web gui, and before Execute
+    // this must be a promise, and the promise must return a obj, whit the thing that each account shoud have in the Execute.
+    // the obj that this return, will be send to the web gui, and the field, will set the value to the keys, of this obj.
+    // then that obj will be passed in "Execute" as "objectToEdit"
+}
+```
 i have made a test module, that mirrow the module in 'https://github.com/quer/the-steam-awards/blob/master/modules/Edit%20Profile/chanceAccountSettings_general.js', you can see it in the "Modules" folder.
 
 there will be a more detailed guide, at a later point. 
