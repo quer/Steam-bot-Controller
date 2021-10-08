@@ -12,7 +12,7 @@ Just run ´npm install´ in the root folder,
 set global chance in  ´config.js´ file.
 and then ´node main´
 
-# Fetures
+# Features
  * add bot
  * remove bot
  * edit basic bot setting.
