@@ -10,7 +10,7 @@ https://github.com/quer/Steam-bot-Controller/tree/node-build-module/nodeControll
 # Setup
 Just run ´npm install´ in the root folder,
 set global chance in  ´config.js´ file.
-and then ´node main´
+and then ´node main´ 
 
 # Features
  * add bot
